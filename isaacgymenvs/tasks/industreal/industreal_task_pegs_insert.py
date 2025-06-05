@@ -285,6 +285,8 @@ class IndustRealTaskPegsInsert(IndustRealEnvPegs, FactoryABCTask):
         delta_pos = self.gripper_goal_pos - self.fingertip_centered_pos
         noisy_delta_pos = self.noisy_gripper_goal_pos - self.fingertip_centered_pos
 
+        # TODO: here should be a query to the fsdata we have observed on the FT sensor
+
         # Define observations (for actor)
         obs_tensors = [
             self.arm_dof_pos,  # 7

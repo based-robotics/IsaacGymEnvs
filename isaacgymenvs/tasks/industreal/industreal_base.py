@@ -196,6 +196,9 @@ class IndustRealBase(FactoryBase, FactoryABCBase):
         _mass_matrix = self.gym.acquire_mass_matrix_tensor(
             self.sim, "franka"
         )  # shape = (num_envs, num_dofs, num_dofs)
+        _fsdata = self.gym.acquire_force_sensor_tensor(
+            self.sim
+        )
 
         self.root_state = gymtorch.wrap_tensor(_root_state)
         self.body_state = gymtorch.wrap_tensor(_body_state)
@@ -204,6 +207,7 @@ class IndustRealBase(FactoryBase, FactoryABCBase):
         self.contact_force = gymtorch.wrap_tensor(_contact_force)
         self.jacobian = gymtorch.wrap_tensor(_jacobian)
         self.mass_matrix = gymtorch.wrap_tensor(_mass_matrix)
+        self.fsdata = gymtorch.wrap_tensor(_fsdata)
 
         self.root_pos = self.root_state.view(self.num_envs, self.num_actors, 13)[
             ..., 0:3
