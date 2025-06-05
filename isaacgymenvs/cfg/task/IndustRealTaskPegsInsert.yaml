@@ -37,8 +37,8 @@ randomize:
     plug_pos_xy_noise: [0.01, 0.01]  # noise on plug position
 
 rl:
-    pos_action_scale: [0.01, 0.01, 0.01]
-    rot_action_scale: [0.01, 0.01, 0.01]
+    pos_action_scale: [0.006, 0.006, 0.006]
+    rot_action_scale: [0.001, 0.001, 0.001]
     force_action_scale: [1.0, 1.0, 1.0]
     torque_action_scale: [1.0, 1.0, 1.0]
 
@@ -84,7 +84,7 @@ ctrl:
         gripper_deriv_gains: [2, 2]
     gym_default:
         ik_method: dls
-        joint_prop_gains: [40, 40, 40, 40, 40, 40, 40]
+        joint_prop_gains: [70, 70, 70, 70, 70, 70, 70]
         joint_deriv_gains: [8, 8, 8, 8, 8, 8, 8]
         gripper_prop_gains: [500, 500]
         gripper_deriv_gains: [20, 20]
@@ -98,7 +98,7 @@ ctrl:
         joint_deriv_gains: [8, 8, 8, 8, 8, 8, 8]
     task_space_impedance:
         motion_ctrl_axes: [1, 1, 1, 1, 1, 1]
-        task_prop_gains: [300, 300, 300, 50, 50, 50]
+        task_prop_gains: [1000, 1000, 1000, 150, 150, 150]
         task_deriv_gains: [34, 34, 34, 1.4, 1.4, 1.4]
     operational_space_motion:
         motion_ctrl_axes: [1, 1, 1, 1, 1, 1]
