@@ -715,8 +715,10 @@ class IndustRealTaskPegsInsert(IndustRealEnvPegs, FactoryABCTask):
     def _set_viewer_params(self):
         """Set viewer parameters."""
 
-        cam_pos = gymapi.Vec3(-1.0, -1.0, 2.0)
-        cam_target = gymapi.Vec3(0.0, 0.0, 1.5)
+        # we want to put camera close-up to the peg
+        # which is likely to be in the middle of the table
+        cam_target = gymapi.Vec3(0.0, 0.0, self.cfg_base.env.table_height)
+        cam_pos = gymapi.Vec3(0.5, 0.0, self.cfg_base.env.table_height + 0.2)
         self.gym.viewer_camera_look_at(self.viewer, None, cam_pos, cam_target)
 
     def _apply_actions_as_ctrl_targets(
