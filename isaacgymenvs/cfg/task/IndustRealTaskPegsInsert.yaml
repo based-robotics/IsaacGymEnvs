@@ -23,7 +23,8 @@ env:
     socket_rot_obs_noise: [0.0, 0.0, 0.0]  
 
 randomize:
-    franka_arm_initial_dof_pos: [-1.7574766278484677, 0.8403247702305783, 2.015877580177467, -2.0924931236718334, -0.7379389376686856, 1.6256438760537268, 1.2689337870766628]  # initial joint angles after reset; FrankX home pose
+    # Pose is modified to be close to ordinary home configuration
+    franka_arm_initial_dof_pos: [.0, -1.76076077e-01, 0.0, -1.86691416, 0.0, 1.69344379, 0.7853981633974483]
     fingertip_centered_pos_initial: [0.0, 0.0, 0.2]  # initial position of midpoint between fingertips above table
     fingertip_centered_pos_noise: [0.0, 0.0, 0.0]  # noise on fingertip pos
     fingertip_centered_rot_initial: [3.141593, 0.0, 0.0]  # initial rotation of fingertips (Euler)
