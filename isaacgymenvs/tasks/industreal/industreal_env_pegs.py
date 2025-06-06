@@ -109,6 +109,18 @@ class IndustRealEnvPegs(IndustRealBase, FactoryABCEnv):
 
         self.print_sdf_warning()
         franka_asset, table_asset = self.import_franka_assets()
+
+        # Add force-torque sensor to Franka asset.
+        ft_sensor_body_idx = self.gym.find_asset_rigid_body_index(franka_asset, "panda_hand")
+        sensor_pose = gymapi.Transform()
+
+        sensor_props = gymapi.ForceSensorProperties()
+        sensor_props.enable_forward_dynamics_forces = True
+        sensor_props.enable_constraint_solver_forces = True
+        sensor_props.use_world_frame = False
+
+        self.gym.create_asset_force_sensor(franka_asset, ft_sensor_body_idx, sensor_pose, sensor_props)
+
         plug_assets, socket_assets = self._import_env_assets()
         self._create_actors(
             lower,
@@ -475,4 +487,4 @@ class IndustRealEnvPegs(IndustRealBase, FactoryABCEnv):
         """Refresh tensors."""
         # NOTE: Tensor refresh functions should be called once per step, before setters.
 
-        pass
+        self.gym.refresh_force_sensor_tensor(self.sim)

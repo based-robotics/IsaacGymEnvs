@@ -55,6 +55,7 @@ from .allegro_kuka.allegro_kuka_two_arms_reorientation import AllegroKukaTwoArms
 
 from .industreal.industreal_task_pegs_insert import IndustRealTaskPegsInsert
 from .industreal.industreal_task_gears_insert import IndustRealTaskGearsInsert
+from .industreal.industreal_task_pegs_insert_force import IndustRealTaskPegsInsertForce
 
 
 def resolve_allegro_kuka(cfg, *args, **kwargs):
@@ -102,6 +103,7 @@ isaacgym_task_map = {
     "FactoryTaskNutBoltPlace": FactoryTaskNutBoltPlace,
     "FactoryTaskNutBoltScrew": FactoryTaskNutBoltScrew,
     "IndustRealTaskPegsInsert": IndustRealTaskPegsInsert,
+    "IndustRealTaskPegsInsertForce": IndustRealTaskPegsInsertForce,
     "IndustRealTaskGearsInsert": IndustRealTaskGearsInsert,
     "FrankaCabinet": FrankaCabinet,
     "FrankaCubeStack": FrankaCubeStack,
