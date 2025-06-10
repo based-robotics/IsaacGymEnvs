@@ -10,8 +10,8 @@ physics_engine: ${..physics_engine}
 
 env:
     numEnvs: 128
-    numObservations: 30
-    numStates: 53
+    numObservations: 28
+    numStates: 51
     numActions: 6
 
     socket_base_height: 0.003
@@ -19,7 +19,7 @@ env:
     num_gripper_move_sim_steps: 120  # number of timesteps to reserve for moving gripper before first step of episode
     num_gripper_close_sim_steps: 60  # number of timesteps to reserve for closing gripper onto plug during each reset
 
-    socket_pos_obs_noise: [0.001, 0.001, 0.0]
+    socket_pos_obs_noise: [0.003, 0.003, 0.0]
     socket_rot_obs_noise: [0.0, 0.0, 0.0]  
 
     # setup what is the source of force measurements
@@ -36,11 +36,19 @@ randomize:
     fingertip_centered_rot_noise: [0.0, 0.0, 0.0]  # noise on fingertip rotation
 
     socket_pos_xy_initial: [0.5, 0.0]  # initial position of socket on table
-    socket_pos_xy_noise: [0.1, 0.1]  # noise on socket position
-    socket_pos_z_noise_bounds: [0.0, 0.05]  # noise on socket offset from table
+    socket_pos_xy_noise: [0.15, 0.15]  # noise on socket position
+    socket_pos_z_noise_bounds: [0.0, 0.08]  # noise on socket offset from table
     socket_rot_noise: [0.0, 0.0, 0.0872665]  # noise on socket rotation
 
     plug_pos_xy_noise: [0.01, 0.01]  # noise on plug position
+
+    # force and torque scale randomization
+    force_bias_bounds: [-30.0, 30.0]
+    force_scale_bounds: [0.75, 1.25]
+
+    # torque is not used right now
+    torque_bias_bounds: [-0.1, 0.1]
+    torque_scale_bounds: [0.5, 1.5]
 
 rl:
     pos_action_scale: [0.006, 0.006, 0.006]

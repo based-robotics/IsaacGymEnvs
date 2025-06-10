@@ -264,6 +264,22 @@ class IndustRealTaskPegsInsertForce(IndustRealEnvPegs, FactoryABCTask):
         if self.cfg_task.env.force_source == "fts":
             force = self.fsdata
 
+        # we normalize the force measurement and torque measurement and add them to the observations
+        fvec = force[:, 0:3]  # force vector
+        # tvec = force[:, 3:6]  # torque vector
+        fvec_norm = torch.norm(fvec, p=2, dim=-1, keepdim=True)
+        # tvec_norm = torch.norm(tvec, p=2, dim=-1, keepdim=True)
+
+        # apply transformation to force and torque magnitudes
+        fvec_norm = self._force_scale * fvec_norm + self._force_bias
+        # tvec_norm = self._torque_scale * tvec_norm + self._torque_bias
+
+        if fvec_norm.max() > 0:
+            fvec = fvec / fvec_norm
+        # if tvec_norm.max() > 0:
+        #     tvec = tvec / tvec_norm
+        force = torch.cat((fvec, fvec_norm), dim=-1)  # shape = (num_envs, 4)
+
         # Define observations (for actor)
         obs_tensors = [
             self.arm_dof_pos,  # 7
@@ -288,7 +304,7 @@ class IndustRealTaskPegsInsertForce(IndustRealEnvPegs, FactoryABCTask):
                 1
             ],  # 4
             noisy_delta_pos, # 3
-            force, # 6
+            force, # 4
         ]
 
         # Define state (for critic)
@@ -321,7 +337,7 @@ class IndustRealTaskPegsInsertForce(IndustRealEnvPegs, FactoryABCTask):
             self.pose_world_to_robot_base(self.plug_pos, self.plug_quat)[0],  # 3
             self.pose_world_to_robot_base(self.plug_pos, self.plug_quat)[1],  # 4
             noisy_delta_pos - delta_pos, # 3
-            force,  # 6
+            force,  # 4
         ]
 
         self.obs_buf = torch.cat(
@@ -489,6 +505,18 @@ class IndustRealTaskPegsInsertForce(IndustRealEnvPegs, FactoryABCTask):
             socket_pos=self.socket_pos,
             socket_quat=self.socket_quat,
             wp_device=self.wp_device,
+        )
+
+        # We should randomize current scale for the force and torque
+        # it should be randomized in some range and applied to the corresponding measurements
+        # also, randomize them in the linear function: y = k * x + b with some bias too
+        self._force_scale, self._force_bias = self._generate_linear_coefficients(
+            self.cfg_task.randomize.force_scale_bounds,
+            self.cfg_task.randomize.force_bias_bounds,
+        )
+        self._torque_scale, self._torque_bias = self._generate_linear_coefficients(
+            self.cfg_task.randomize.torque_scale_bounds,
+            self.cfg_task.randomize.torque_bias_bounds,
         )
 
         self._reset_buffers()
@@ -774,3 +802,31 @@ class IndustRealTaskPegsInsertForce(IndustRealEnvPegs, FactoryABCTask):
 
         # Reset plug in case it is knocked away by gripper movement
         self._reset_plug(before_move_to_grasp=False)
+
+    def _generate_linear_coefficients(self, scale_bounds, bias_bounds):
+        """
+        Generate linear transformation coefficients for sensor calibration.
+        Returns scale (k) and bias (b) for transformation: y = k * x + b
+        
+        Args:
+            scale_bounds: [min_scale, max_scale] range for multiplicative factor
+            bias_bounds: [min_bias, max_bias] range for additive offset
+            
+        Returns:
+            tuple: (scale, bias) tensors of shape (num_envs, 1)
+        """
+        # Generate scale coefficient (k)
+        scale_range = scale_bounds[1] - scale_bounds[0]
+        scale = (
+            torch.rand((self.num_envs, 1), dtype=torch.float32, device=self.device)
+            * scale_range + scale_bounds[0]
+        )
+        
+        # Generate bias coefficient (b)
+        bias_range = bias_bounds[1] - bias_bounds[0]
+        bias = (
+            torch.rand((self.num_envs, 1), dtype=torch.float32, device=self.device)
+            * bias_range + bias_bounds[0]
+        )
+        
+        return scale, bias

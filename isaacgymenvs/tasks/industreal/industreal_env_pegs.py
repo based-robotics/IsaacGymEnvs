@@ -117,7 +117,9 @@ class IndustRealEnvPegs(IndustRealBase, FactoryABCEnv):
         sensor_props = gymapi.ForceSensorProperties()
         sensor_props.enable_forward_dynamics_forces = True
         sensor_props.enable_constraint_solver_forces = True
-        sensor_props.use_world_frame = False
+        # Note: we use the world frame for the sensor since it will be easier
+        # to measure in the real run
+        sensor_props.use_world_frame = True
 
         self.gym.create_asset_force_sensor(franka_asset, ft_sensor_body_idx, sensor_pose, sensor_props)
 

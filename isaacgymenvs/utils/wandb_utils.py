@@ -2,6 +2,7 @@ from rl_games.common.algo_observer import AlgoObserver
 
 from isaacgymenvs.utils.utils import retry
 from isaacgymenvs.utils.reformat import omegaconf_to_dict
+import os
 
 
 class WandbAlgoObserver(AlgoObserver):
@@ -10,6 +11,8 @@ class WandbAlgoObserver(AlgoObserver):
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
+        self.logged_checkpoints = set()
+        self.checkpoints_dir = None  # Will be set after first call
 
     def before_init(self, base_name, config, experiment_name):
         """
@@ -19,8 +22,8 @@ class WandbAlgoObserver(AlgoObserver):
 
         import wandb
 
-        wandb_unique_id = f"uid_{experiment_name}"
-        print(f"Wandb using unique id {wandb_unique_id}")
+        self.wandb_unique_id = f"uid_{experiment_name}"
+        print(f"Wandb using unique id {self.wandb_unique_id}")
 
         cfg = self.cfg
 
@@ -33,7 +36,7 @@ class WandbAlgoObserver(AlgoObserver):
                 group=cfg.wandb_group,
                 tags=cfg.wandb_tags,
                 sync_tensorboard=True,
-                id=wandb_unique_id,
+                id=self.wandb_unique_id,
                 name=experiment_name,
                 resume=True,
                 settings=wandb.Settings(start_method='fork'),
@@ -53,3 +56,30 @@ class WandbAlgoObserver(AlgoObserver):
             wandb.config.update(self.cfg, allow_val_change=True)
         else:
             wandb.config.update(omegaconf_to_dict(self.cfg), allow_val_change=True)
+
+    def after_steps(self):
+        import wandb
+
+        # Set checkpoints_dir if not set
+        if self.checkpoints_dir is None:
+            # Example: runs/EXPERIMENT_NAME/nn/
+            experiment_name = wandb.run.name if wandb.run else "default"
+            self.checkpoints_dir = os.path.join("runs", experiment_name, "nn")
+
+        if not os.path.isdir(self.checkpoints_dir):
+            return
+
+        # Scan for new checkpoint files
+        for fname in os.listdir(self.checkpoints_dir):
+            fpath = os.path.join(self.checkpoints_dir, fname)
+            if os.path.isfile(fpath) and fpath not in self.logged_checkpoints:
+                # Log new checkpoint to wandb
+                artifact = wandb.Artifact(
+                    self.wandb_unique_id,
+                    type="model",
+                    description=f"Checkpoint {fname}",
+                )
+                artifact.add_file(fpath)
+                wandb.log_artifact(artifact)
+                print(f"Logged checkpoint to wandb: {fpath}")
+                self.logged_checkpoints.add(fpath)

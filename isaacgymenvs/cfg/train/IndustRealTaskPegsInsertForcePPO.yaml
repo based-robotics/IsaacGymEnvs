@@ -75,7 +75,7 @@ params:
     mini_epochs: 8
     critic_coef: 2
     clip_value: True
-    seq_len: 8
+    seq_len: 16
     bounds_loss_coef: 0.0001
 
     central_value_config:
@@ -101,13 +101,13 @@ params:
             name: default
           regularizer:
             name: None
-    
-        # rnn:
-        #   name: lstm
-        #   units: 256
-        #   layers: 2
-        #   before_mlp: True
-        #   concat_input: True
-        #   layer_norm: False
+
+        rnn:
+          name: lstm
+          units: 256
+          layers: 2
+          before_mlp: True
+          concat_input: True
+          layer_norm: False
 
 
